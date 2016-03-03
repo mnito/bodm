@@ -20,7 +20,7 @@
 namespace BODM\Reference;
 
 use BODM\ActiveModel;
-use BODM\Base;
+use BODM\Base\Base;
 
 class ActiveReference extends ActiveModel implements Reference
 {

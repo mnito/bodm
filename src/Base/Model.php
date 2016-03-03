@@ -17,10 +17,12 @@
  * 
  */
 
-namespace BODM;
+namespace BODM\Base;
 
 use BODM\Reference\Reference;
 use BODM\Reference\BaseReference;
+use Traversable;
+use BODM\Helper\Helper;
 
 class Model extends Base
 {
@@ -147,8 +149,24 @@ class Model extends Base
             return $this->compressSingle($object);
         } elseif(is_array($object)) {
             return $this->compressArray($object);
+        } elseif($object instanceof Traversable) {
+            $objects = self::convertToArray($object);
+            return $this->compressArray($objects);
         }
         return $object;
+    }
+    
+    protected function convertToArray(Traversable $object): array
+    {
+        if(method_exists($object, 'toArray')) {
+            return $object->toArray();
+        } else {
+            $array = [];
+            foreach($object as $key=>$value) {
+                $array[$key] = $value;
+            }
+            return $array;
+        }
     }
     
     public function compressSingle(self $object): Base
@@ -220,7 +238,7 @@ class Model extends Base
     public function getCompressedAttributesList($classKey = ''): array
     {
         $attributesList = $this->getAttributesList();
-        $compressed = $this->compressed;
+        $compressed = array_change_key_case($this->compressed, CASE_LOWER);
         self::inject_id($compressed);
         $generalList = self::filterOutSpecific($compressed);
         if($classKey == '' || !array_key_exists($classKey, $compressed)) {

@@ -19,7 +19,7 @@
 
 namespace BODM\Commands;
 
-use BODM\Model;
+use BODM\Base\Model;
 use MongoDB\Collection;
 
 abstract class Command implements Executable

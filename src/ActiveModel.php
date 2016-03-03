@@ -19,6 +19,9 @@
 
 namespace BODM;
 
+use BODM\Base\Model;
+use BODM\Base\Base;
+use BODM\config\config;
 use MongoDB\Driver\Manager;
 use MongoDB\Collection;
 use MongoDB\BSON\ObjectID;
@@ -27,18 +30,20 @@ use Traversable;
 use BODM\Reference\ActiveReference;
 use BODM\Reference\Reference;
 use BODM\Commands\Save;
+use BODM\Commands\Remove;
 use BODM\Exception\ExpansionException;
 
 class ActiveModel extends Model
 {   
-    protected static $defaultDb = 'test';
+    const DEFAULT_DB = config::DEFAULT_DB;
+    
     protected static $manager;
     protected static $registry = [];
     
     protected $dbName;
     protected $collectionName;
     protected $embedded = false;
-    protected $autoExpand = true;
+    protected $autoExpand = false;
     protected $graceful = true;
     protected $collection;
     protected $lastResult;
@@ -49,18 +54,13 @@ class ActiveModel extends Model
         parent::__construct($attributes);
     }
     
-    public static function construct(array $attributes = array())
-    {
-        return new static($attributes);
-    }
-    
     protected function load()
     {
         if($this->embedded === true) {
             return;
         }
         if($this->dbName === null) {
-            $this->dbName = static::$defaultDb;
+            $this->dbName = static::DEFAULT_DB;
         }
         if($this->collectionName === null) {
             $this->collectionName = static::getClassKey();
@@ -97,6 +97,11 @@ class ActiveModel extends Model
     public function getCollection(): Collection
     {
         return $this->collection;
+    }
+    
+    public static function construct(array $attributes = array())
+    {
+        return new static($attributes);
     }
     
     protected static function register(self $object)
@@ -150,6 +155,14 @@ class ActiveModel extends Model
         return $ret;
     }
     
+    public function remove(): bool
+    {
+        $remove = new Remove($this, $this->collection);
+        $ret = $remove->execute();
+        $this->lastResult = $remove->getResult();
+        return $ret;
+    }
+    
     private static function tryExpand(&$attribute): bool
     {
         if(static::isActiveReference($attribute)) {
@@ -161,40 +174,46 @@ class ActiveModel extends Model
                 $result = $result && self::tryExpand($element);
             }
             return $result;
+        } elseif($attribute instanceof Traversable) {
+            $objects = static::convertToArray($attribute);
+            return self::tryExpand($objects);
         }
         return false;
     }
     
-    private static function tryExpandAll(array $references, array &$attributes): int
+    private static function tryExpandAll(array $references, array &$attributes): array
     {
-        $expanded = 0;
+        $expanded = [];
         foreach($references as $name) {
             if(array_key_exists($name, $attributes)) {
                 $attribute = $attributes[$name];
                 if(self::tryExpand($attribute)) {
                     $attributes[$name] = $attribute;
-                    $expanded += 1;
+                    $expanded[$name] = $attribute;
                 }
             }
         }
         return $expanded;
     }
     
-    public function getAttribute(string $name)
+    public function getAttribute(string $name, $expand = false)
     {
         $attribute = parent::getAttribute($name);
-        if($this->autoExpand && self::tryExpand($attribute)) {
+        if(($this->autoExpand || $expand) && self::tryExpand($attribute)) {
             $this->setRawAttribute($name, $attribute, false);
         }
         return $attribute;
     }
     
-    public function getAttributes(): array
+    public function getAttributes($expand = false): array
     {
         $attributes = parent::getAttributes();
         $references = $this->getReferenceList();
-        if($this->autoExpand) {
-            $this->tryExpandAll($references, $attributes);
+        if($this->autoExpand || $expand) {
+            $expanded = $this->tryExpandAll($references, $attributes);
+            foreach($expanded as $name=>$value) {
+                $this->setRawAttribute($name, $value, false);
+            }
         }
         return $attributes;
     }
@@ -218,17 +237,12 @@ class ActiveModel extends Model
             return static::getFromRegistry($id);
         }
         $result = $instance->findOne(['_id' => $id]);
-        return $result !== false ? $result : false;
+        return $result !== null ? $result : false;
     }
     
     public function findOne($filter = [], $options = [])
     {
-        $result = $this->collection->find($filter, $options)->toArray();
-        if(array_key_exists(0, $result)) {
-            static::register($result[0]);
-            return $result[0];
-        }
-        return false;
+        return $this->collection->findOne($filter, $options);
     }
     
     public function find($filter = [], $options = []): Traversable

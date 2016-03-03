@@ -19,7 +19,7 @@
 
 namespace BODM\Reference;
 
-use BODM\Base;
+use BODM\Base\Base;
 
 interface Reference
 {

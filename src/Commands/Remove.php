@@ -21,17 +21,15 @@ namespace BODM\Commands;
 
 use Exception;
 
-class Update extends Command
+class Remove extends Command
 {
-    
-    public function update(): bool
+    protected function remove(): bool
     {
         if(empty($this->model->_id)) {
             return false;
         }
         try {
-            $set = ['$set' => $this->model->getUpdates()];
-            $result = $this->collection->updateOne(['_id' => $this->model->_id], $set);
+            $result = $this->collection->findOneAndDelete(['_id' => $this->model->_id]);
             $this->result = $result;
         } catch (Exception $ex) {
             $this->result = $ex;
@@ -40,8 +38,8 @@ class Update extends Command
         return true;
     }
     
-    final public function execute(): bool
+    public function execute(): bool
     {
-        return $this->update();
+        return $this->remove();
     }
 }

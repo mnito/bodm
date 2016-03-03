@@ -17,7 +17,7 @@
  * 
  */
 
-namespace BODM;
+namespace BODM\Base;
 
 use MongoDB\BSON\Persistable;
 use MongoDB\BSON\Binary;

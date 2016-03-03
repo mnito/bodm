@@ -19,7 +19,7 @@
 
 namespace BODM\Reference;
 
-use BODM\Base;
+use BODM\Base\Base;
 use BODM\Reference\Reference;
 
 class BaseReference extends Base implements Reference
