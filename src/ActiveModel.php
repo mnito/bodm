@@ -24,7 +24,6 @@ use MongoDB\Collection;
 use MongoDB\BSON\ObjectID;
 use Exception;
 use Traversable;
-
 use BODM\Reference\ActiveReference;
 use BODM\Reference\Reference;
 use BODM\Commands\Save;
@@ -36,26 +35,35 @@ class ActiveModel extends Model
     protected static $manager;
     protected static $registry = [];
     
-    protected $namespace = '';
+    protected $dbName;
+    protected $collectionName;
     protected $embedded = false;
     protected $autoExpand = true;
     protected $graceful = true;
     protected $collection;
     protected $lastResult;
     
-    public function __construct(array $attributes = array())
+    final public function __construct(array $attributes = array())
     {
         $this->load();
         parent::__construct($attributes);
     }
-
+    
+    public static function construct(array $attributes = array())
+    {
+        return new static($attributes);
+    }
+    
     protected function load()
     {
         if($this->embedded === true) {
             return;
         }
-        if($this->namespace === '') {
-            $this->namespace = static::$defaultDb.'.'.static::getClassKey();
+        if($this->dbName === null) {
+            $this->dbName = static::$defaultDb;
+        }
+        if($this->collectionName === null) {
+            $this->collectionName = static::getClassKey();
         }
         if(!array_key_exists(static::class, static::$registry)) {
             static::$registry[static::class] = [];
@@ -75,12 +83,18 @@ class ActiveModel extends Model
     protected function loadCollection()
     {
         if(empty($this->collection)) {
-            $collection = new Collection(static::$manager, $this->namespace);
+            $collection = new Collection(static::$manager, $this->dbName, $this->collectionName);
             $this->collection = $collection;
         }
     }
     
-    public function getCollection()
+    public function bsonUnserialize(array $data)
+    {
+        $this->load();
+        parent::bsonUnserialize($data);
+    }
+    
+    public function getCollection(): Collection
     {
         return $this->collection;
     }
@@ -136,7 +150,7 @@ class ActiveModel extends Model
         return $ret;
     }
     
-    private static function tryAutoExpand(&$attribute): bool
+    private static function tryExpand(&$attribute): bool
     {
         if(static::isActiveReference($attribute)) {
             $attribute = $attribute->expand();
@@ -144,20 +158,20 @@ class ActiveModel extends Model
         } elseif(is_array($attribute)) {
             $result = true;
             foreach($attribute as &$element) {
-                $result = $result && self::tryAutoExpand($element);
+                $result = $result && self::tryExpand($element);
             }
             return $result;
         }
         return false;
     }
     
-    private static function tryAutoExpandAll($references, &$attributes): int
+    private static function tryExpandAll(array $references, array &$attributes): int
     {
         $expanded = 0;
         foreach($references as $name) {
             if(array_key_exists($name, $attributes)) {
                 $attribute = $attributes[$name];
-                if(self::tryAutoExpand($attribute)) {
+                if(self::tryExpand($attribute)) {
                     $attributes[$name] = $attribute;
                     $expanded += 1;
                 }
@@ -169,7 +183,7 @@ class ActiveModel extends Model
     public function getAttribute(string $name)
     {
         $attribute = parent::getAttribute($name);
-        if($this->autoExpand && self::tryAutoExpand($attribute)) {
+        if($this->autoExpand && self::tryExpand($attribute)) {
             $this->setRawAttribute($name, $attribute, false);
         }
         return $attribute;
@@ -180,7 +194,7 @@ class ActiveModel extends Model
         $attributes = parent::getAttributes();
         $references = $this->getReferenceList();
         if($this->autoExpand) {
-            $this->tryAutoExpandAll($references, $attributes);
+            $this->tryExpandAll($references, $attributes);
         }
         return $attributes;
     }

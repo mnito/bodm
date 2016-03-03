@@ -62,9 +62,9 @@ class Base implements Persistable, JsonSerializable, IteratorAggregate
         return self::add__pclass($this->getRawAttributes());
     }
     
-    final public function bsonUnserialize(array $data)
+    public function bsonUnserialize(array $data)
     {
-        $this->__construct($data);
+        $this->fill($data);
     }
     
     final public function attributeExists(string $name): bool

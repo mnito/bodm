@@ -19,6 +19,8 @@
 
 namespace BODM\Commands;
 
+use Exception;
+
 class Update extends Command
 {
     

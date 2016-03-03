@@ -92,7 +92,6 @@ class Model extends Base
     
     public function getReferenceObjects(): array
     {
-        //Lazy loading
         if(!empty($this->referenceObjects)) {
             return $this->referenceObjects;
         }

@@ -19,6 +19,8 @@
 
 namespace BODM\Commands;
 
+use Exception;
+
 class Insert extends Command
 {
     protected function insert(): bool
