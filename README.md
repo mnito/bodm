@@ -76,6 +76,7 @@ Michael P. Nitowski <[mpnitowski@gmail.com](mailto:mpnitowski@gmail.com)> (Twitt
 Contributing and forking is encouraged. Bug reports and feature requests are helpful along with direct contributions.
 
 Contribution Ideas:
+
 * "Referenced By" Feature: With this feature, when an object that is referenced by other objects is updated outside the context of other objects, the changes are automatically pushed to the reference objects. (This is an admittedly complex task with different ways of handling it, hence why it was not handled in version 1. By nature of BODM, in version 1, if the references are expanded within the containing object, the changes will be updated if a save is called on the containing object.)
 * Unit tests
 * Enhanced documentation
