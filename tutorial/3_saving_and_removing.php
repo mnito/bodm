@@ -5,10 +5,10 @@ include 'header.php';
 use BODM\ActiveModel;
 
 /*
- * Saving and Removing * 
+ * SAVING AND REMOVING * 
  */
 
-/**
+/*
  * General:
  * 
  * Insert and update are implemented using the Save command. The object
@@ -35,11 +35,9 @@ class Author extends ActiveModel
 $author = new Author(['name' => 'Mike', 'reputation' => 111, 'dateJoined' => '2016-03-03']);
 $post = new Post(['author' => $author, 'content' => 'Hey']);
 
-
-//Insertion
 $post->save();
 
-echo $post;
+echo $post.PHP_EOL;
 
 /*
  * Output:
@@ -70,10 +68,8 @@ $post->save();
 var_dump($post->getLastResult());
 
 
-/**
- * 
+/*
  * Output:
- * 
 array(2) {
   [0]=>
   object(MongoDB\UpdateResult)#19 (2) {
@@ -157,19 +153,17 @@ array(2) {
 }
  */
 
-/**
+/*
  * Notice an update was attempted because we dynamically added an _id to the
  * author. It did not succeed because there is no corresponding _id and upsert
  * is not set.
  * 
  */
 
-echo $post;
+echo $post.PHP_EOL;
 
 /*
- * 
  * Output:
- * 
 {
     "author": {
         "name": "Mike",
@@ -205,8 +199,7 @@ var_dump($post->getLastResult());
 
 /*
  * Output:
- * 
- * array(1) {
+array(1) {
   [0]=>
   object(MongoDB\InsertOneResult)#26 (3) {
     ["writeResult":"MongoDB\InsertOneResult":private]=>
@@ -253,7 +246,7 @@ var_dump($post->getLastResult());
 
 //Only an insert was attempted.
 
-/**
+/*
  * Updating is a complex operation with compressed references involved.
  * An update occurs at every level of the object where it is warranted.
  * References are not uncompressed in the database when an update occurs and
@@ -269,10 +262,8 @@ $author->postsAuthored = 5;
 
 var_dump($author->getUpdates());
 
-/**
+/*
  * Output:
- * 
- * 
  array(1) {
   ["postsAuthored"]=>
   int(5)
@@ -281,9 +272,8 @@ var_dump($author->getUpdates());
 
 var_dump($post->getUpdates());
 
-/**
+/*
  * Output:
- * 
 array(0) {
 } 
  */
@@ -294,8 +284,8 @@ $author->name = 'Mikey';
 
 var_dump($post->getUpdates());
 
-/**
- * 
+/*
+ * Output:
 array(1) {
   ["author.name"]=>
   string(5) "Mikey"

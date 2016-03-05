@@ -228,7 +228,6 @@ class ActiveModel extends Model
 
     public static function findOneById($id)
     {
-        $instance = new static();
         if(empty($id)) {
             return false;
         }
@@ -236,18 +235,20 @@ class ActiveModel extends Model
         if(static::existsInRegistry($id)) {
             return static::getFromRegistry($id);
         }
-        $result = $instance->findOne(['_id' => $id]);
+        $result = static::findOne(['_id' => $id]);
         return $result !== null ? $result : false;
     }
     
-    public function findOne($filter = [], $options = [])
+    public static function findOne($filter = [], $options = [])
     {
-        return $this->collection->findOne($filter, $options);
+        $instance = new static();
+        return $instance->getCollection()->findOne($filter, $options);
     }
     
-    public function find($filter = [], $options = []): Traversable
+    public static function find($filter = [], $options = []): Traversable
     {
-        $result = $this->collection->find($filter, $options);
+        $instance = new static();
+        $result = $instance->getCollection()->find($filter, $options);
         return $result;
     }
     
