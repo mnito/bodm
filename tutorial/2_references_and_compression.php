@@ -29,7 +29,11 @@ class Author extends ActiveModel
      * by any object while those with a class key are used by the class with
      * that class key
      */
-    protected $compressed = ['name', 'Post' => ['reputation'], 'Bar' => ['reputation', '__not' => ['name']]];
+    protected $compressed = [
+        'name', 
+        'Post' => ['reputation'], 
+        'Bar' => ['reputation', '__not' => ['name']]
+    ];
 }
 
 
