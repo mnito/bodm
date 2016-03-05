@@ -4,7 +4,6 @@ BODM is an object document mapper (ODM) for use with MongoDB and the MongoDB
 PHP Library. BODM supports embedded documents and complex document referencing, 
 with a simple way of defining such references.
 
-
 ## Basics
 
 BODM basic features:
@@ -41,7 +40,7 @@ class Author extends ActiveModel
 BODM can easily handle complex saves which includes inserts and updates at all 
 levels of the object and its references.
 
-To learn more about what BODM can do, see the tutorials folder.
+To learn more about what BODM can do, see the tutorial folder.
 
 ## Installation
 
