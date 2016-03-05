@@ -1,8 +1,8 @@
 # BODM (BSON Object Document Mapper)
 
-BODM is an object document mapper (ODM) for use with MongoDB and the MongoDB 
-PHP Library. BODM supports embedded documents and complex document referencing, 
-with a simple way of defining such references.
+BODM is an object document mapper (ODM) for use with the new MongoDB PHP driver 
+and the MongoDB PHP Library. BODM supports embedded documents and complex 
+document referencing, with a simple way of defining such references.
 
 ## Basics
 

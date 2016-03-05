@@ -1,6 +1,6 @@
 {
     "name": "bodm/bodm",
-    "description": "ODM for use with MongoDB PHP Library and MongoDB PHP Driver",
+    "description": "ODM for use with the MongoDB PHP Driver and MongoDB PHP Library",
     "keywords": ["bodm", "bson", "object", "document", "mapper", "mongodb"],
     "homepage": "https://github.com/mnito/bodm",
     "type": "library",
