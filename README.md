@@ -12,6 +12,7 @@ BODM basic features:
  * Robust deep saving of objects and their references (and the references of 
     the references!)
  * Manual or automatic reference expansion
+ * Full support for the new MongoDB PHP driver and MongoDB PHP library
 
 
 To define references:
